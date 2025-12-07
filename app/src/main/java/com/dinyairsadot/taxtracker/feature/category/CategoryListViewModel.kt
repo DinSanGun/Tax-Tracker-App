@@ -63,6 +63,36 @@ class CategoryListViewModel(
     fun onAddCategoryClicked() {
         // Add analytics / logging later
     }
+
+    fun addCategory(name: String, colorHex: String, description: String) {
+        viewModelScope.launch {
+            try {
+                // Get current categories to compute next ID
+                val current = categoryRepository.getCategories()
+                val nextId = (current.maxOfOrNull { it.id } ?: 0) + 1
+
+                val newCategory = Category(
+                    id = nextId,
+                    name = name,
+                    colorHex = colorHex,
+                    description = description.ifBlank { null }
+                )
+
+                categoryRepository.addCategory(newCategory)
+
+                // Reload and update UI state
+                val updated = categoryRepository.getCategories()
+                _uiState.value = _uiState.value.copy(
+                    categories = updated.map { it.toUi() },
+                    errorMessage = null
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Failed to add category"
+                )
+            }
+        }
+    }
 }
 
 // Mapping from domain model to UI model

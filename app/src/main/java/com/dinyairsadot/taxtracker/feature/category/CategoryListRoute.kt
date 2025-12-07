@@ -2,13 +2,12 @@ package com.dinyairsadot.taxtracker.feature.category
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun CategoryListRoute(
     onAddCategoryClick: () -> Unit,
     onCategoryClick: (Long) -> Unit,
-    viewModel: CategoryListViewModel = viewModel()
+    viewModel: CategoryListViewModel
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
