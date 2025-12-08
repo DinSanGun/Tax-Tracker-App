@@ -93,6 +93,24 @@ class CategoryListViewModel(
             }
         }
     }
+
+    fun deleteCategory(id: Long) {
+        viewModelScope.launch {
+            try {
+                categoryRepository.deleteCategory(id)
+
+                val updated = categoryRepository.getCategories()
+                _uiState.value = _uiState.value.copy(
+                    categories = updated.map { it.toUi() },
+                    errorMessage = null
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Failed to delete category"
+                )
+            }
+        }
+    }
 }
 
 // Mapping from domain model to UI model

@@ -35,4 +35,8 @@ class InMemoryCategoryRepository : CategoryRepository {
     override suspend fun addCategory(category: Category) {
         categories.add(category)
     }
+
+    override suspend fun deleteCategory(id: Long) {
+        categories.removeAll { it.id == id }
+    }
 }

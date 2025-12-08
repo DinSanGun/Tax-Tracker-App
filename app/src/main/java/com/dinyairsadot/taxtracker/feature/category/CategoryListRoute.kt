@@ -22,6 +22,9 @@ fun CategoryListRoute(
         onCategoryClick = { id ->
             viewModel.onCategoryClicked(id)
             onCategoryClick(id)
+        },
+        onDeleteCategory = { id ->
+            viewModel.deleteCategory(id)
         }
     )
 }
