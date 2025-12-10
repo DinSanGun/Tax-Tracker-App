@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -32,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,8 +49,9 @@ import androidx.core.graphics.toColorInt
 import kotlinx.coroutines.launch
 
 import androidx.compose.runtime.LaunchedEffect
-
 import com.dinyairsadot.taxtracker.core.ui.AppSnackbar
+import com.dinyairsadot.taxtracker.feature.category.CategoryColorPreview
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
