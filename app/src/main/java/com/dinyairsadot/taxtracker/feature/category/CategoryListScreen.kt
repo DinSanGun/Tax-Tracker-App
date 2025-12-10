@@ -50,9 +50,6 @@ import androidx.compose.runtime.LaunchedEffect
 
 import com.dinyairsadot.taxtracker.core.ui.AppSnackbar
 
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryListScreen(

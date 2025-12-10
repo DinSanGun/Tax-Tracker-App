@@ -1,51 +1,101 @@
 package com.dinyairsadot.taxtracker.feature.category
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditCategoryScreen(
     initialName: String,
     initialColorHex: String,
-    initialDescription: String,
+    initialDescription: String?,
+    otherNamesLower: Set<String>,
     onNavigateBack: () -> Unit,
     onSaveCategory: (name: String, colorHex: String, description: String) -> Unit,
-    otherNamesLower: Set<String>
+    onDeleteCategory: () -> Unit
 ) {
-    var name by remember { mutableStateOf(initialName) }
-    var colorHex by remember { mutableStateOf(initialColorHex) }
-    var description by remember { mutableStateOf(initialDescription) }
+    var name by rememberSaveable { mutableStateOf(initialName) }
+    var colorHex by rememberSaveable { mutableStateOf(initialColorHex) }
+    var description by rememberSaveable { mutableStateOf(initialDescription.orEmpty()) }
 
     var nameError by remember { mutableStateOf<String?>(null) }
     var colorError by remember { mutableStateOf<String?>(null) }
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    fun onSaveClicked() {
+        var hasError = false
+
+        if (name.isBlank()) {
+            nameError = "Name is required"
+            hasError = true
+        } else if (otherNamesLower.contains(name.trim().lowercase())) {
+            nameError = "Name must be unique"
+            hasError = true
+        }
+
+        if (colorHex.isNotBlank()) {
+            val regex = Regex("^#[0-9A-Fa-f]{6}$")
+            if (!regex.matches(colorHex.trim())) {
+                colorError = "Color must be in #RRGGBB format"
+                hasError = true
+            }
+        }
+
+        if (!hasError) {
+            onSaveCategory(
+                name.trim(),
+                colorHex.trim(),
+                description.trim()
+            )
+            onNavigateBack()
+        }
+    }
+
+    val formState = CategoryFormState(
+        name = name,
+        nameError = nameError,
+        colorHex = colorHex,
+        colorError = colorError,
+        description = description
+    )
+
+    val formCallbacks = CategoryFormCallbacks(
+        onNameChange = { newName ->
+            name = newName
+            if (nameError != null) nameError = null
+        },
+        onColorHexChange = { newColor ->
+            colorHex = newColor
+            if (colorError != null) colorError = null
+        },
+        onDescriptionChange = { newDesc ->
+            description = newDesc
+        },
+        onSaveClick = { onSaveClicked() },
+        onDeleteClick = { showDeleteDialog = true }
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Category") },
+                title = { Text("Edit category") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -57,116 +107,40 @@ fun EditCategoryScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
-        ) {
+        CategoryForm(
+            state = formState,
+            callbacks = formCallbacks,
+            saveButtonLabel = "Save changes",
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
 
-            OutlinedTextField(
-                value = name,
-                onValueChange = {
-                    name = it
-                    if (nameError != null && it.isNotBlank()) {
-                        nameError = null
-                    }
-                },
-                label = { Text("Category name *") },
-                isError = nameError != null,
-                supportingText = {
-                    if (nameError != null) {
-                        Text(nameError!!)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = colorHex,
-                onValueChange = {
-                    colorHex = it
-                    if (colorError != null) {
-                        colorError = null
-                    }
-                },
-                label = { Text("Color hex (#RRGGBB, optional)") },
-                placeholder = { Text("#FF9800") },
-                isError = colorError != null,
-                supportingText = {
-                    if (colorError != null) {
-                        Text(colorError!!)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "Quick color presets",
-                style = MaterialTheme.typography.labelMedium
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            CategoryColorOptionsRow(
-                selectedColorHex = colorHex,
-                onColorSelected = { selected ->
-                    colorHex = selected
-                    colorError = null          // again, presets are valid
-                }
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Description (optional)") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    var hasError = false
-
-                    if (name.isBlank()) {
-                        nameError = "Name is required"
-                        hasError = true
-                    }
-
-                    if (colorHex.isNotBlank()) {
-                        val pattern = Regex("^#[0-9A-Fa-f]{6}\$")
-                        if (!pattern.matches(colorHex.trim())) {
-                            colorError = "Use format #RRGGBB (e.g. #FF9800)"
-                            hasError = true
-                        }
-                    }
-
-                    val trimmedLower = name.trim().lowercase()
-                    if (!hasError && otherNamesLower.contains(trimmedLower)) {
-                        nameError = "A category with this name already exists"
-                        hasError = true
-                    }
-
-                    if (!hasError) {
-                        onSaveCategory(
-                            name.trim(),
-                            colorHex.trim(),
-                            description.trim()
-                        )
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete category?") },
+            text = {
+                Text(
+                    "Are you sure you want to delete this category? " +
+                            "All data associated with it will be removed."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteCategory()
                         onNavigateBack()
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Save changes")
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
             }
-        }
+        )
     }
 }
