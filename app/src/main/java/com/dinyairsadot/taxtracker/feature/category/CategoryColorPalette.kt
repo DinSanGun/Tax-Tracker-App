@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import android.graphics.Color as AndroidColor
+
+
 
 private data class PresetCategoryColor(
     val hex: String,
@@ -69,3 +72,38 @@ fun CategoryColorOptionsRow(
         }
     }
 }
+
+private fun parseCategoryColorOrNull(hex: String): androidx.compose.ui.graphics.Color? {
+    val trimmed = hex.trim()
+    val regex = Regex("^#[0-9A-Fa-f]{6}$")
+    if (!regex.matches(trimmed)) return null
+
+    return try {
+        val intColor = AndroidColor.parseColor(trimmed)
+        androidx.compose.ui.graphics.Color(intColor)
+    } catch (e: IllegalArgumentException) {
+        null
+    }
+}
+
+@Composable
+fun CategoryColorPreview(
+    colorHex: String,
+    modifier: Modifier = Modifier
+) {
+    val parsedColor = parseCategoryColorOrNull(colorHex)
+    val fillColor = parsedColor ?: MaterialTheme.colorScheme.surfaceVariant
+
+    Box(
+        modifier = modifier
+            .size(28.dp)
+            .clip(CircleShape)
+            .background(fillColor)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+                shape = CircleShape
+            )
+    )
+}
+
