@@ -49,7 +49,7 @@ class InvoiceListViewModel(
                     invoices = invoices.map { it.toUi() },
                     errorMessage = null
                 )
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _uiState.value = InvoiceListUiState(
                     isLoading = false,
                     invoices = emptyList(),
@@ -119,7 +119,8 @@ class InvoiceListViewModel(
             )
 
             invoiceRepository.updateInvoice(updated)
-            // Reload list for this category so the InvoiceListScreen sees the changes
+
+            // Refresh list so InvoiceListScreen sees updated data
             loadInvoices(existing.categoryId)
         }
     }

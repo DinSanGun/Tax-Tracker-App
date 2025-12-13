@@ -184,3 +184,129 @@ private fun PaymentStatusSelector(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditInvoiceScreen(
+    invoiceId: Long,
+    initialAmount: String,
+    initialDateText: String,
+    initialPaymentStatus: PaymentStatus,
+    initialNotes: String,
+    onNavigateBack: () -> Unit,
+    onSaveInvoice: (
+        amount: Double,
+        dateText: String,
+        paymentStatus: PaymentStatus,
+        notes: String
+    ) -> Unit
+) {
+    var amountText by rememberSaveable { mutableStateOf(initialAmount) }
+    var dateText by rememberSaveable { mutableStateOf(initialDateText) }
+    var notes by rememberSaveable { mutableStateOf(initialNotes) }
+    var paymentStatus by rememberSaveable { mutableStateOf(initialPaymentStatus) }
+
+    var amountError by rememberSaveable { mutableStateOf<String?>(null) }
+    var dateError by rememberSaveable { mutableStateOf<String?>(null) }
+
+    fun handleSave() {
+        val amount = amountText.toDoubleOrNull()
+        if (amount == null || amount <= 0.0) {
+            amountError = "Enter a valid amount"
+            return
+        } else {
+            amountError = null
+        }
+
+        if (dateText.isNotBlank() && dateText.length < 8) {
+            dateError = "Use format YYYY-MM-DD or leave empty"
+            return
+        } else {
+            dateError = null
+        }
+
+        onSaveInvoice(amount, dateText.trim(), paymentStatus, notes.trim())
+        onNavigateBack()
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Edit invoice") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = "Invoice #$invoiceId",
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(modifier = Modifier.padding(top = 12.dp))
+
+            OutlinedTextField(
+                value = amountText,
+                onValueChange = { amountText = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Amount") },
+                isError = amountError != null,
+                supportingText = amountError?.let { msg -> { Text(msg) } }
+            )
+
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+
+            OutlinedTextField(
+                value = dateText,
+                onValueChange = { dateText = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Date (YYYY-MM-DD, optional)") },
+                isError = dateError != null,
+                supportingText = dateError?.let { msg -> { Text(msg) } }
+            )
+
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+
+            Text(text = "Payment status", fontWeight = FontWeight.SemiBold)
+
+            Spacer(modifier = Modifier.padding(top = 4.dp))
+
+            PaymentStatusSelector(
+                selected = paymentStatus,
+                onSelectedChange = { paymentStatus = it }
+            )
+
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Notes (optional)") },
+                minLines = 3
+            )
+
+            Spacer(modifier = Modifier.padding(top = 16.dp))
+
+            Button(
+                onClick = { handleSave() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Save changes")
+            }
+        }
+    }
+}
+

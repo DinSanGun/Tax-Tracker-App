@@ -17,8 +17,6 @@ import com.dinyairsadot.taxtracker.feature.category.EditCategoryScreen
 import com.dinyairsadot.taxtracker.feature.invoice.InvoiceListScreen
 import com.dinyairsadot.taxtracker.feature.invoice.AddInvoiceScreen
 
-import androidx.compose.runtime.*
-
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Text
@@ -38,7 +36,16 @@ import com.dinyairsadot.taxtracker.feature.invoice.InvoiceListViewModel
 
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import com.dinyairsadot.taxtracker.feature.invoice.EditInvoiceScreen
+import com.dinyairsadot.taxtracker.feature.invoice.InvoiceListUiState
+import com.dinyairsadot.taxtracker.feature.invoice.InvoiceUi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 
 
 // Adjust if your Screen definitions live elsewhere
@@ -61,6 +68,11 @@ sealed class Screen(val route: String) {
     object InvoiceDetails : Screen("invoice_details/{invoiceId}") {
         fun routeWithId(invoiceId: Long) = "invoice_details/$invoiceId"
     }
+
+    object EditInvoice : Screen("edit_invoice/{invoiceId}") {
+        fun routeWithId(invoiceId: Long) = "edit_invoice/$invoiceId"
+    }
+
 
 }
 
@@ -247,7 +259,9 @@ fun TaxTrackerNavHost(
                 }
             )
         }
-
+        // -------------------------
+        // Invoice detail screen
+        // -------------------------
         composable(
             route = Screen.InvoiceDetails.route,
             arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })
@@ -294,11 +308,57 @@ fun TaxTrackerNavHost(
                     invoice = invoice,
                     onBackClick = { navController.popBackStack() },
                     onEditClick = {
-                        // TODO.
-                        // Next step: navigate to EditInvoiceScreen here.
+                        navController.navigate(
+                            Screen.EditInvoice.routeWithId(invoice.id)
+                        )
                     }
                 )
             }
+        }
+        // -------------------------
+        // Invoice edit screen
+        // -------------------------
+        composable(
+            route = Screen.EditInvoice.route,
+            arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val invoiceId = backStackEntry.arguments?.getLong("invoiceId") ?: return@composable
+
+            // Share the same InvoiceListViewModel as list/details
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Screen.InvoiceList.route)
+            }
+            val viewModel: InvoiceListViewModel = viewModel(parentEntry)
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            val invoiceUi = uiState.invoices.firstOrNull { it.id == invoiceId }
+
+            if (invoiceUi == null) {
+                // If we somehow got here without an invoice, just go back
+                LaunchedEffect(Unit) {
+                    navController.popBackStack()
+                }
+                return@composable
+            }
+
+            EditInvoiceScreen(
+                invoiceId = invoiceUi.id,
+                initialAmount = invoiceUi.amount.toString(),
+                initialDateText = invoiceUi.dueDateText ?: "",
+                initialPaymentStatus = invoiceUi.paymentStatus,
+                initialNotes = invoiceUi.notes ?: "",
+                onNavigateBack = { navController.popBackStack() },
+                onSaveInvoice = { amount, dateText, paymentStatus, notes ->
+                    viewModel.updateInvoice(
+                        invoiceId = invoiceUi.id,
+                        amount = amount,
+                        dateText = dateText,
+                        paymentStatus = paymentStatus,
+                        notes = notes
+                    )
+                    // EditInvoiceScreen itself calls onNavigateBack()
+                }
+            )
         }
     }
 }
