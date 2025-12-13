@@ -15,6 +15,8 @@ import com.dinyairsadot.taxtracker.feature.category.CategoryListRoute
 import com.dinyairsadot.taxtracker.feature.category.CategoryListViewModel
 import com.dinyairsadot.taxtracker.feature.category.EditCategoryScreen
 import com.dinyairsadot.taxtracker.feature.invoice.InvoiceListScreen
+import com.dinyairsadot.taxtracker.feature.invoice.InvoiceListViewModel
+
 
 // Adjust if your Screen definitions live elsewhere
 sealed class Screen(val route: String) {
@@ -160,13 +162,25 @@ fun TaxTrackerNavHost(
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: return@composable
 
+            val viewModel: InvoiceListViewModel = viewModel(backStackEntry)
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            // Load invoices whenever the categoryId changes (or first time we enter)
+            androidx.compose.runtime.LaunchedEffect(categoryId) {
+                viewModel.loadInvoices(categoryId)
+            }
+
             InvoiceListScreen(
                 categoryId = categoryId,
+                uiState = uiState,
                 onBackClick = { navController.popBackStack() },
                 onEditCategoryClick = {
                     navController.navigate(
                         Screen.EditCategory.routeWithId(categoryId)
                     )
+                },
+                onAddInvoiceClick = {
+                    // TODO: will navigate to AddInvoiceScreen in the next steps
                 }
             )
         }
