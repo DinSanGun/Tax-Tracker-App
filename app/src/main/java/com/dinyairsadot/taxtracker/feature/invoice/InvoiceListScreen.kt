@@ -30,6 +30,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.contentColorFor
+import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.toColorInt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -66,12 +70,21 @@ fun InvoiceListScreen(
         }
     }
 
+    val headerColor = uiState.categoryColorHex?.let { parseColor(it) } ?: MaterialTheme.colorScheme.surface
+    val onHeaderColor = contentColorFor(headerColor)
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+
         topBar = {
             TopAppBar(
                 title = { Text(uiState.categoryName ?: "Invoices") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = headerColor,
+                    titleContentColor = onHeaderColor,
+                    navigationIconContentColor = onHeaderColor,
+                    actionIconContentColor = onHeaderColor
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -306,4 +319,20 @@ private fun InvoiceItem(
 private fun formatAmountILS(amount: Double): String {
     return "₪%.2f".format(amount)
 }
+
+/**
+ * Helper to convert #RRGGBB to a Color.
+ */
+private fun parseColor(hex: String): Color {
+    return try {
+        if (hex.isBlank()) {
+            Color.Gray
+        } else {
+            Color(hex.toColorInt())
+        }
+    } catch (_: IllegalArgumentException) {
+        Color.Gray
+    }
+}
+
 

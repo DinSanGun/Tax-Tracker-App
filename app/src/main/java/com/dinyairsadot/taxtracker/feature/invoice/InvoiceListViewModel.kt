@@ -26,6 +26,7 @@ data class InvoiceUi(
 data class InvoiceListUiState(
     val isLoading: Boolean = false,
     val categoryName: String? = null,
+    val categoryColorHex: String? = null,
     val invoices: List<InvoiceUi> = emptyList(),
     val errorMessage: String? = null
 )
@@ -43,10 +44,10 @@ class InvoiceListViewModel(
         viewModelScope.launch {
             try {
                 val category = categoryRepository.getCategories().firstOrNull { it.id == categoryId }
-                _uiState.value = _uiState.value.copy(categoryName = category?.name)
+                _uiState.value = _uiState.value.copy(categoryName = category?.name, categoryColorHex = category?.colorHex)
             } catch (_: Exception) {
                 // If category can't be loaded, keep title fallback in UI
-                _uiState.value = _uiState.value.copy(categoryName = null)
+                _uiState.value = _uiState.value.copy(categoryName = null, categoryColorHex = null)
             }
         }
     }
