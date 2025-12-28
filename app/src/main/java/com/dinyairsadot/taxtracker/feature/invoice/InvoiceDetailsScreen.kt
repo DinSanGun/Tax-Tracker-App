@@ -26,6 +26,13 @@ import androidx.compose.ui.unit.dp
 import com.dinyairsadot.taxtracker.core.domain.PaymentStatus
 import com.dinyairsadot.taxtracker.core.ui.parseCategoryColorOrDefault
 import androidx.compose.material3.TopAppBarDefaults
+import com.dinyairsadot.taxtracker.core.ui.categoryTopAppBarColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.LocalContentColor
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,13 +55,17 @@ fun InvoiceDetailsScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = onEditClick) {
+                    // Ensures the action uses the same contrast-aware color as the title/icons
+                    TextButton(
+                        onClick = onEditClick,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = LocalContentColor.current
+                        )
+                    ) {
                         Text("Edit invoice")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = parseCategoryColorOrDefault(categoryColorHex)
-                )
+                colors = categoryTopAppBarColors(categoryColorHex)
             )
         }
     ) { paddingValues ->
