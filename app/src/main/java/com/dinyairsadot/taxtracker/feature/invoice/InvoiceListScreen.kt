@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -46,6 +48,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import com.dinyairsadot.taxtracker.core.ui.categoryTopAppBarColors
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,8 +61,9 @@ fun InvoiceListScreen(
     onEditCategoryClick: () -> Unit,
     onAddInvoiceClick: () -> Unit,
     onInvoiceClick: (Long) -> Unit,
-    onDeleteInvoice: (Long) -> Unit
-) {
+    onDeleteInvoice: (Long) -> Unit,
+    categoryColorHex: String?
+    ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -79,12 +84,7 @@ fun InvoiceListScreen(
         topBar = {
             TopAppBar(
                 title = { Text(uiState.categoryName ?: "Invoices") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = headerColor,
-                    titleContentColor = onHeaderColor,
-                    navigationIconContentColor = onHeaderColor,
-                    actionIconContentColor = onHeaderColor
-                ),
+                colors = categoryTopAppBarColors(categoryColorHex),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -94,11 +94,16 @@ fun InvoiceListScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = onEditCategoryClick) {
+                    TextButton(
+                        onClick = onEditCategoryClick,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = LocalContentColor.current
+                        )
+                    ) {
                         Text("Edit category")
                     }
                 }
-            )
+                )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddInvoiceClick) {

@@ -233,8 +233,9 @@ fun TaxTrackerNavHost(
                 },
                 onDeleteInvoice = { invoiceId ->
                     viewModel.deleteInvoice(invoiceId = invoiceId, categoryId = categoryId)
-                }
-            )
+                },
+                categoryColorHex = uiState.categoryColorHex,
+                )
         }
         // -------------------------
         // Invoice add screen
