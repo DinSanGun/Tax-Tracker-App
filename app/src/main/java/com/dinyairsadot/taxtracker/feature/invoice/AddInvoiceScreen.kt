@@ -26,11 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dinyairsadot.taxtracker.core.domain.PaymentStatus
+import com.dinyairsadot.taxtracker.core.ui.categoryTopAppBarColors
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddInvoiceScreen(
     categoryId: Long,
+    categoryColorHex: String?,
     onNavigateBack: () -> Unit,
     onSaveInvoice: (
         amount: Double,
@@ -72,6 +75,7 @@ fun AddInvoiceScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Add invoice") },
+                colors = categoryTopAppBarColors(categoryColorHex),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(

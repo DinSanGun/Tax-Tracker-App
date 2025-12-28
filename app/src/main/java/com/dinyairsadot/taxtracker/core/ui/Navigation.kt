@@ -246,10 +246,15 @@ fun TaxTrackerNavHost(
             val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: return@composable
 
             // We don't need uiState here, just the ability to add an invoice.
-            val viewModel: InvoiceListViewModel = viewModel(backStackEntry)
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Screen.InvoiceList.route)
+            }
+            val viewModel: InvoiceListViewModel = viewModel(parentEntry)
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
             AddInvoiceScreen(
                 categoryId = categoryId,
+                categoryColorHex = uiState.categoryColorHex,
                 onNavigateBack = { navController.popBackStack() },
                 onSaveInvoice = { amount, dateText, paymentStatus, notes ->
                     viewModel.addInvoice(
