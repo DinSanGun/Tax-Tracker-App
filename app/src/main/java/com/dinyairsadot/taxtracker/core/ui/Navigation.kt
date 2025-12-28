@@ -315,7 +315,8 @@ fun TaxTrackerNavHost(
                         navController.navigate(
                             Screen.EditInvoice.routeWithId(invoice.id)
                         )
-                    }
+                    },
+                    categoryColorHex = uiState.categoryColorHex
                 )
             }
         }

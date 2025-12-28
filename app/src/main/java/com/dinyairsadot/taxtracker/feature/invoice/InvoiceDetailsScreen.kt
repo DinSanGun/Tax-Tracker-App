@@ -24,13 +24,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dinyairsadot.taxtracker.core.domain.PaymentStatus
+import com.dinyairsadot.taxtracker.core.ui.parseCategoryColorOrDefault
+import androidx.compose.material3.TopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvoiceDetailsScreen(
     invoice: InvoiceUi,
     onBackClick: () -> Unit,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    categoryColorHex: String?
 ) {
     Scaffold(
         topBar = {
@@ -48,7 +51,10 @@ fun InvoiceDetailsScreen(
                     TextButton(onClick = onEditClick) {
                         Text("Edit invoice")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = parseCategoryColorOrDefault(categoryColorHex)
+                )
             )
         }
     ) { paddingValues ->
