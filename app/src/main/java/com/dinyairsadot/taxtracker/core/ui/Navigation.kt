@@ -195,7 +195,8 @@ fun TaxTrackerNavHost(
                         colorHex = colorHex,
                         description = description
                     )
-                }
+                },
+                categoryColorHex = category.colorHex
             )
         }
         // -------------------------

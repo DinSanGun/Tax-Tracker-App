@@ -16,12 +16,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.dinyairsadot.taxtracker.core.ui.categoryTopAppBarColors
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditCategoryScreen(
     initialName: String,
     initialColorHex: String,
+    categoryColorHex: String?,
     initialDescription: String?,
     otherNamesLower: Set<String>,
     onNavigateBack: () -> Unit,
@@ -90,6 +93,7 @@ fun EditCategoryScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Edit category") },
+                colors = categoryTopAppBarColors(categoryColorHex),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
