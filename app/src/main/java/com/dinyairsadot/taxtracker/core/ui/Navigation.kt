@@ -368,8 +368,9 @@ fun TaxTrackerNavHost(
                         notes = notes
                     )
                     // EditInvoiceScreen itself calls onNavigateBack()
-                }
-            )
+                },
+                categoryColorHex = uiState.categoryColorHex,
+                )
         }
     }
 }

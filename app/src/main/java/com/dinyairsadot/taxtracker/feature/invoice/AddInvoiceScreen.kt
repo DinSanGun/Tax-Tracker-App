@@ -1,4 +1,5 @@
 package com.dinyairsadot.taxtracker.feature.invoice
+// Contains AddInvoiceScreen and EditInvoiceScreen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dinyairsadot.taxtracker.core.domain.PaymentStatus
 import com.dinyairsadot.taxtracker.core.ui.categoryTopAppBarColors
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -193,6 +195,7 @@ private fun PaymentStatusSelector(
 @Composable
 fun EditInvoiceScreen(
     invoiceId: Long,
+    categoryColorHex: String?,
     initialAmount: String,
     initialDateText: String,
     initialPaymentStatus: PaymentStatus,
@@ -237,6 +240,7 @@ fun EditInvoiceScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Edit invoice") },
+                colors = categoryTopAppBarColors(categoryColorHex),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
