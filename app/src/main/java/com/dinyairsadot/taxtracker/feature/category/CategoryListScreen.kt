@@ -52,6 +52,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
 import com.dinyairsadot.taxtracker.core.ui.AppSnackbar
 import com.dinyairsadot.taxtracker.feature.category.CategoryColorPreview
+import androidx.compose.foundation.BorderStroke
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -231,7 +233,11 @@ private fun CategoryItem(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        border = BorderStroke(
+            width = 1.dp,
+            color = parseColor(category.colorHex).copy(alpha = 0.25f)
+        )
     ) {
         Row(
             modifier = Modifier
@@ -242,7 +248,7 @@ private fun CategoryItem(
                 modifier = Modifier
                     .width(8.dp)
                     .height(IntrinsicSize.Min)
-                    .background(parseColor(category.colorHex))
+                    .background(parseColor(category.colorHex).copy(alpha = 0.25f))
             )
 
             Column(
