@@ -48,7 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import kotlinx.coroutines.launch
-
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.runtime.LaunchedEffect
 import com.dinyairsadot.taxtracker.core.ui.AppSnackbar
 import com.dinyairsadot.taxtracker.feature.category.CategoryColorPreview
@@ -231,12 +231,21 @@ private fun CategoryItem(
     onClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    val cardContainerColor = lerp(
+        MaterialTheme.colorScheme.surface,
+        Color.White,
+        0.22f
+    )
+
     Card(
         modifier = Modifier
             .fillMaxWidth(),
         border = BorderStroke(
-            width = 1.dp,
-            color = parseColor(category.colorHex).copy(alpha = 0.25f)
+            width = 1.5.dp,
+            color = parseColor(category.colorHex).copy(alpha = 0.4f),
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = cardContainerColor
         )
     ) {
         Row(
